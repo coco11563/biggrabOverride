@@ -1,0 +1,18 @@
+{
+	"description":"数据抓取过程记录抓取数据的文件",
+	"version":"1.0",
+	"creat_time":"2014-11-20",
+	"Author":"JiaJun Lee",
+	"grab_statistic":{
+		"description":"记录着一次启动抓取的统计信息.grab_num:抓取次数;grab_error_num:抓取出错次数;grab_blank_num:抓取空次数;",
+		"grab_num":"0",
+		"grab_error_num":"0",
+		"grab_blank_num":"0"
+	},
+	"db_statistic":{
+		"description":"db_num:数据库总量;collection_num:数据集总量;data_num:数据记录总量",
+		"db_num":"0",
+		"collection_num":"0",
+		"data_num":"0"
+	}
+}

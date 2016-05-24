@@ -1,0 +1,55 @@
+//类注释规范
+英文模板：
+ 
+/**   
+ *  
+ * Simple to Introduction  
+ * @ProjectName:  [${project_name}] 
+ * @Package:      [${package_name}.${file_name}]  
+ * @ClassName:    [${type_name}]   
+ * @Description:  [一句话描述该类的功能]   
+ * @Author:       [${user}]   
+ * @CreateDate:   [${date} ${time}]   
+ * @UpdateUser:   [${user}]   
+ * @UpdateDate:   [${date} ${time}]   
+ * @UpdateRemark: [说明本次修改内容]  
+ * @Version:      [v1.0] 
+ *    
+ */
+ 
+中文模板：
+
+/**   
+ * 
+ * XX
+ * 
+ * 项目名称: 	BigDataGrab
+ * 
+ * 包:       XX
+ * 
+ * 类名称:    	XX
+ * 
+ * 类描述:    	XX
+ * 
+ * 创建人:   	李佳骏
+ * 
+ * 创建时间:  	2014年11月20日   
+ * 
+ * 修改人:    	无
+ * 
+ * 修改时间: 	无
+ * 
+ * 修改备注:  	无
+ * 
+ * 版本:      	[v1.0]   
+ *    
+ */
+  
+  方法(Constructor & Methods)标签注释
+/**
+* @Title: ${enclosing_method}
+* @Description: ${todo}(这里用一句话描述这个方法的作用)
+* @param ${tags}    设定文件
+* @return ${return_type}    返回类型
+* @throws
+*/

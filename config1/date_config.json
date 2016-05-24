@@ -1,0 +1,11 @@
+{
+	"description":"这是存放date的配置文件",
+	"version":"1.0",
+	"creat_time":"2014-11-18",
+	"Author":"JiaJun Lee",
+	"date":{
+		"description":"开始时间抓取数据的日期和抓取的数据的天数",
+		"start_time":"2015-05-21",
+		"last_days":"365"
+		}
+}
