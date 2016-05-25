@@ -166,9 +166,10 @@ public class main
 					//有的时候库里只有14个
 					if(0==j || 5==j|| 9==j || 15==j )
 					{
-						email_send.EmailSendByAddress("332884975@qq.com", df, sdf, grab_statistic, cal, email_send);
-						email_send.EmailSendByAddress("181814577@qq.com", df, sdf, grab_statistic, cal, email_send);
-						email_send.EmailSendByAddress("469893703@qq.com", df, sdf, grab_statistic, cal, email_send);
+						for(int mailnum = 0 ;mailnum< email_addresses.length;i++)
+						{
+						email_send.EmailSendByAddress(email_addresses[mailnum], df, sdf, grab_statistic, cal, email_send);
+						}
 						}
 					///////////////////////////////////////////////////////////////////////////////////////////////////
 					
@@ -186,8 +187,11 @@ public class main
 				long end = System.currentTimeMillis ( );
 				 
 				OperMongo.closeDB ( ) ;
-				
-				email_send.EmailSendByAddress(end-start, "469893703@qq.com", email_send);
+				String email_addresses[] = readConfig.read_email_address_config ( );
+				for(int mailnum = 0 ;i< email_addresses.length;i++)
+				{
+					email_send.EmailSendByAddress(end-start, email_addresses[mailnum], email_send);
+				}
 				//数据导出
 				OperMongo.connectDB ( ) ;
 				start = System.currentTimeMillis ( );
@@ -202,7 +206,11 @@ public class main
 				
 				OperMongo.closeDB ( ) ;
 				System.out.println("导出共耗时:"+(end-start) );
-				email_send.EmailSendByAddress("469893703@qq.com", sdf, cal, email_send);
+				for(int mailnum = 0 ;i< email_addresses.length;i++)
+				{
+					email_send.EmailSendByAddress("469893703@qq.com", sdf, cal, email_send);
+				}
+				
 				
 //				//导入数据至MySQL和HBase数据库
 //				long start1 = System.currentTimeMillis ( );
