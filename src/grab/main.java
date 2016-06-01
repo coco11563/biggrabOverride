@@ -84,11 +84,11 @@ public class main
 			location.add ( new AreaData ( 24.25, 25.25, 121.5, 122 ) );// 台湾
 			
 		meticulouslocation.add ( new AreaData ( 30.2, 30.9, 113.9, 114.7 ) );	//武汉
-		meticulouslocation.add ( new AreaData ( 0,0,0,0 ) ); 	//北京
-		meticulouslocation.add ( new AreaData ( 0,0,0,0 ) );	//上海
-		meticulouslocation.add ( new AreaData ( 0,0,0,0 ) );	//广州
-		meticulouslocation.add ( new AreaData ( 0,0,0,0 ) );	//深圳
-		meticulouslocation.add ( new AreaData ( 0,0,0,0 ) );	//杭州
+		meticulouslocation.add ( new AreaData ( 39.46,40.22,115.83,116.91 ) ); 	//北京
+		meticulouslocation.add ( new AreaData ( 30.69,31.66,120.98,121.95 ) );	//上海
+		meticulouslocation.add ( new AreaData ( 23.0,23.21,113.21,113.46 ) );	//广州
+		meticulouslocation.add ( new AreaData ( 22.86,22.55,113.64,114.59) );	//深圳
+		meticulouslocation.add ( new AreaData ( 30.06,30.42,119.85,120.43 ) );	//杭州
 
 			
 			
@@ -96,6 +96,11 @@ public class main
 			double lon_min;
 			double lat_max;
 			double lon_max;
+			//精细化抓取区域
+			double mlat_min;
+			double mlon_min;
+			double mlat_max;
+			double mlon_max;
 			long unix_start_time;
 			long unix_end_time;
 		
@@ -184,6 +189,22 @@ public class main
 					
 					OperMongo.closeDB ( );
 				}
+				//coco1 add at 2016年6月1日20:26:22
+				//针对某几个区域进行精细抓取，抓取半径设置为5000
+				for ( int j1 = 0; j1 < meticulouslocation.size ( ); j1++ )
+				{
+					OperMongo.connectDB();
+					AreaData mlat_lon = meticulouslocation.get(j1);
+					mlat_min = mlat_lon.getLat_min ( );
+					mlon_min = mlat_lon.getLon_min ( );
+					mlat_max = mlat_lon.getLat_max ( );
+					mlon_max = mlat_lon.getLon_max ( );
+					GetData.getSinaData_new_test( collection_name, mlat_min, mlon_min, mlat_max,mlon_max, unix_start_time, unix_end_time,5000);
+					
+					OperMongo.closeDB ( );
+					
+					 
+				}
 				
 				//数据去重
 				OperMongo.connectDB ( ) ;
@@ -218,13 +239,6 @@ public class main
 				}
 				
 				
-//				//导入数据至MySQL和HBase数据库
-//				long start1 = System.currentTimeMillis ( );
-//				System.out.println(start_time);
-//				HbaseImport.insert(start_time);
-//				MySQLImport.insert(start_time);
-//				long end1 = System.currentTimeMillis ( );
-//				System.out.println("导入数据至MySQL和HBase数据库共耗时:"+(end1-start1) );
 
 			}
 		}
