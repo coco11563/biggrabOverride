@@ -237,7 +237,7 @@ public class OperMongo
 				{
 					DBCollection 		collection 		= 		db.getCollection ( c_name ) ;
 					DBCursor 			cursor 			= 		collection.find ( ) ;
-					
+					cursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
 					while(cursor.hasNext ( ))
 					{
 						write_json_object 	= 		new JSONObject(cursor.next ( ).toString ( )) ;			
@@ -314,7 +314,7 @@ public class OperMongo
 				{
 					DBCollection 		collection 		= 		db.getCollection ( c_name ) ;
 					DBCursor 			cursor 			= 		collection.find ( ) ;
-					
+					cursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
 					while(cursor.hasNext ( ))
 					{
 						write_json_object 	= 		new JSONObject(cursor.next ( ).toString ( )) ;			
@@ -466,6 +466,7 @@ public class OperMongo
 		List < String > id_list = collection.distinct ( "id" );// 获取一张ID表，这张表的字段都是唯一不重复的。
 		DBCursor cursor = collection.find ( );// 获取表指针。
 		boolean isDupli = false;// 判断是否是重复数据的标识。
+		cursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
 		while ( cursor.hasNext ( ) )
 		{
 			DBObject dbo 	= 		cursor.next ( );
