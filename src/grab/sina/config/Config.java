@@ -13,9 +13,7 @@ public class Config
 	{
         String filepath = "/home/biggrab/config/config.properties";
         System.out.println(filepath);
-         
         Config config = new Config(filepath);
-         
         config.loadConfig();
         config.setPropertie("test2", "You are ready");
         config.saveConfig();

@@ -48,6 +48,7 @@ public class main
 		{
 		
 			LinkedList < AreaData > location = new LinkedList < AreaData > ( );
+			LinkedList < AreaData > meticulouslocation = new LinkedList < AreaData > ( );//精细抓取区域，计划包涵北上广深武汉杭州
 			
 			location.add ( new AreaData ( 39, 41, 111, 118.5 ) );// 京津唐冀地区
 			location.add ( new AreaData ( 27.5, 32, 120.5, 122 ) );// 沪杭
@@ -82,8 +83,13 @@ public class main
 			location.add ( new AreaData ( 22.75, 25.25, 121, 121.5 ) );// 台湾
 			location.add ( new AreaData ( 24.25, 25.25, 121.5, 122 ) );// 台湾
 			
-//			location.add ( new AreaData ( 30.2, 30.9, 113.9, 114.7 ) );//武汉是小区域测试20160104
-			
+		meticulouslocation.add ( new AreaData ( 30.2, 30.9, 113.9, 114.7 ) );	//武汉
+		meticulouslocation.add ( new AreaData ( 0,0,0,0 ) ); 	//北京
+		meticulouslocation.add ( new AreaData ( 0,0,0,0 ) );	//上海
+		meticulouslocation.add ( new AreaData ( 0,0,0,0 ) );	//广州
+		meticulouslocation.add ( new AreaData ( 0,0,0,0 ) );	//深圳
+		meticulouslocation.add ( new AreaData ( 0,0,0,0 ) );	//杭州
+
 			
 			
 			double lat_min;
@@ -166,7 +172,7 @@ public class main
 					//有的时候库里只有14个
 					if(0==j || 5==j|| 9==j || 15==j )
 					{
-						for(int mailnum = 0 ;mailnum< email_addresses.length;i++)
+						for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
 						{
 						email_send.EmailSendByAddress(email_addresses[mailnum], df, sdf, grab_statistic, cal, email_send);
 						}
@@ -188,7 +194,7 @@ public class main
 				 
 				OperMongo.closeDB ( ) ;
 				String email_addresses[] = readConfig.read_email_address_config ( );
-				for(int mailnum = 0 ;i< email_addresses.length;i++)
+				for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
 				{
 					email_send.EmailSendByAddress(end-start, email_addresses[mailnum], email_send);
 				}
@@ -206,9 +212,9 @@ public class main
 				
 				OperMongo.closeDB ( ) ;
 				System.out.println("导出共耗时:"+(end-start) );
-				for(int mailnum = 0 ;i< email_addresses.length;i++)
+				for(int mailnum = 0 ;mailnum < email_addresses.length;mailnum++)
 				{
-					email_send.EmailSendByAddress("469893703@qq.com", sdf, cal, email_send);
+					email_send.EmailSendByAddress(email_addresses[mailnum], sdf, cal, email_send);
 				}
 				
 				
