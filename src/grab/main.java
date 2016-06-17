@@ -110,7 +110,7 @@ public class main
 			String last_days = date_conf [ 1 ];
 			
 			//创建邮件发送对象。
-//			EmailSend email_send = new EmailSend();
+			EmailSend email_send = new EmailSend();
 			//统计信息刷新。
 			Statistics.statisticsRefresh ( );
 			for ( int i = 0; i <  Integer.parseInt(last_days); i++ )
@@ -175,13 +175,13 @@ public class main
 					 
 					//要求降低信息发送频率，定制一额发送
 					//有的时候库里只有14个
-//					if(0==j || 5==j|| 9==j || 15==j )
-//					{
-//						for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
-//						{
-//						email_send.EmailSendByAddress(email_addresses[mailnum], df, sdf, grab_statistic, cal, email_send);
-//						}
-//						}
+					if(0==j || 5==j|| 9==j || 15==j )
+					{
+						for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
+						{
+						email_send.EmailSendByAddress(email_addresses[mailnum], df, sdf, grab_statistic, cal, email_send);
+						}
+						}
 					///////////////////////////////////////////////////////////////////////////////////////////////////
 					
 //					GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
@@ -199,7 +199,7 @@ public class main
 					mlon_min = mlat_lon.getLon_min ( );
 					mlat_max = mlat_lon.getLat_max ( );
 					mlon_max = mlat_lon.getLon_max ( );
-					GetData.getSinaData_new_test( collection_name, mlat_min, mlon_min, mlat_max,mlon_max, unix_start_time, unix_end_time,5000);
+					GetData.getSinaData_new_test( collection_name, mlat_min, mlon_min, mlat_max,mlon_max, unix_start_time, unix_end_time,6000);
 					
 					OperMongo.closeDB ( );
 					
@@ -214,11 +214,11 @@ public class main
 				long end = System.currentTimeMillis ( );
 				 
 				OperMongo.closeDB ( ) ;
-//				String email_addresses[] = readConfig.read_email_address_config ( );
-//				for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
-//				{
-//					email_send.EmailSendByAddress(end-start, email_addresses[mailnum], email_send);
-//				}
+				String email_addresses[] = readConfig.read_email_address_config ( );
+				for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
+				{
+					email_send.EmailSendByAddress(end-start, email_addresses[mailnum], email_send);
+				}
 				//数据导出
 				OperMongo.connectDB ( ) ;
 				start = System.currentTimeMillis ( );
@@ -232,12 +232,6 @@ public class main
 				OperMongo.deleteDBAll();
 				
 				OperMongo.closeDB ( ) ;
-				System.out.println("导出共耗时:"+(end-start) );
-//				for(int mailnum = 0 ;mailnum < email_addresses.length;mailnum++)
-//				{
-//					email_send.EmailSendByAddress(email_addresses[mailnum], sdf, cal, email_send);
-//				}
-				
 				
 
 			}
