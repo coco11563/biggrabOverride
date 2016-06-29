@@ -80,6 +80,21 @@ public void EmailSendByAddress(long time,String emailad, EmailSend email_send)
 	}
 /**
  * @author coco1
+ * 粗糙简化一下消耗时间
+ * @param time
+ * @param emailad
+ * @param email_send
+ */
+public void EmailSendByAddress(long time,long time2,String emailad, EmailSend email_send)
+{
+	email_send.send(emailad,
+			"BigDataGrab项目数据去重信息",
+			"[admin@~]NO.1行政区划归类共耗时:"+time +"s\r\n\r\n" +
+			"[admin@~]完成一天的抓取"+
+			"[admin@~]一共使用" + time2 +"min。\r\n");
+	}
+/**
+ * @author coco1
  * 粗糙简化一下当前状态
  * @param emailad
  * @param sdf

@@ -43,7 +43,7 @@ public class main
 			e1.printStackTrace();
 		}
 	
-		
+		long start_all = System.currentTimeMillis ( );
 		try
 		{
 		
@@ -179,7 +179,7 @@ public class main
 					{
 						for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
 						{
-						email_send.EmailSendByAddress(email_addresses[mailnum], df, sdf, grab_statistic, cal, email_send);
+						email_send.EmailSendByAddress(email_addresses[mailnum], df, sdf, grab_statistic, c, email_send);
 						}
 						}
 					///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,20 +191,20 @@ public class main
 				}
 				//coco1 add at 2016年6月1日20:26:22
 				//针对某几个区域进行精细抓取，抓取半径设置为5000
-				for ( int j1 = 0; j1 < meticulouslocation.size ( ); j1++ )
-				{
-					OperMongo.connectDB();
-					AreaData mlat_lon = meticulouslocation.get(j1);
-					mlat_min = mlat_lon.getLat_min ( );
-					mlon_min = mlat_lon.getLon_min ( );
-					mlat_max = mlat_lon.getLat_max ( );
-					mlon_max = mlat_lon.getLon_max ( );
-					GetData.getSinaData_new_test( collection_name, mlat_min, mlon_min, mlat_max,mlon_max, unix_start_time, unix_end_time,6000);
-					
-					OperMongo.closeDB ( );
-					
-					 
-				}
+//				for ( int j1 = 0; j1 < meticulouslocation.size ( ); j1++ )
+//				{
+//					OperMongo.connectDB();
+//					AreaData mlat_lon = meticulouslocation.get(j1);
+//					mlat_min = mlat_lon.getLat_min ( );
+//					mlon_min = mlat_lon.getLon_min ( );
+//					mlat_max = mlat_lon.getLat_max ( );
+//					mlon_max = mlat_lon.getLon_max ( );
+//					GetData.getSinaData_new_test( collection_name, mlat_min, mlon_min, mlat_max,mlon_max, unix_start_time, unix_end_time,6000);
+//					
+//					OperMongo.closeDB ( );
+//					
+//					 
+//				}
 				
 				//数据去重
 				OperMongo.connectDB ( ) ;
@@ -224,15 +224,19 @@ public class main
 				start = System.currentTimeMillis ( );
 				OperMongo.export_date_pro_city_json ( Adress.exportJsonPath ) ;				
 				end = System.currentTimeMillis ( );
+				long end_all = System.currentTimeMillis ( );
+				for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
+				{
+					email_send.EmailSendByAddress((end-start)/1000,(end_all - start_all)/(1000 * 60) , email_addresses[mailnum], email_send);
+				}
 				
-				//配置文件中的日期也增加一天，下次启动便不用修改配置文件
-				readConfig.add_one_day_in_config();
 				
 				//清空一天的数据
 				OperMongo.deleteDBAll();
 				
 				OperMongo.closeDB ( ) ;
-				
+				//配置文件中的日期也增加一天，下次启动便不用修改配置文件
+				readConfig.add_one_day_in_config();
 
 			}
 		}

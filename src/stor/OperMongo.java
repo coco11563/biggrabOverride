@@ -315,6 +315,7 @@ public class OperMongo
 					DBCollection 		collection 		= 		db.getCollection ( c_name ) ;
 					DBCursor 			cursor 			= 		collection.find ( ) ;
 					cursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+					try{
 					while(cursor.hasNext ( ))
 					{
 						write_json_object 	= 		new JSONObject(cursor.next ( ).toString ( )) ;			
@@ -331,6 +332,11 @@ public class OperMongo
 			            count++;
 						write_fw.close();
 						write_fw	= null;
+					}
+					}
+					catch(Exception e)
+					{
+						System.out.println("A Wrong with cursor 0" + e.toString());
 					}
 				}
 			}	
