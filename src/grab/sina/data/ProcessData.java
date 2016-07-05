@@ -617,7 +617,8 @@ public class ProcessData
 			}
 			
 			//URL搜索
-			String 				url						=		"http://api.map.baidu.com/geocoder?location="+location[0]+","+location[1]+"&output=json&key=28bcdd84fae25699606ffad27f8da77b" ;
+//			String 				url						=		"http://api.map.baidu.com/geocoder?location="+location[0]+","+location[1]+"&output=json&key=28bcdd84fae25699606ffad27f8da77b" ;
+			String  			url						=  		"http://api.map.baidu.com/geocoder/v2/?ak=Q9D8ftvpm5PRFvAK4gkM4HguKuVRXCHe&location="+location[0]+","+location[1]+"&output=json&coordtype=gcj02ll";
 			String 				baiduLocation 	= 		pcn_connUrl(url) ;
 			JSONObject 		temp_object		=		new JSONObject(baiduLocation) ;
 			temp_object		= 		temp_object.getJSONObject("result") ;
