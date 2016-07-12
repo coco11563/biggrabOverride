@@ -85,13 +85,15 @@ public void EmailSendByAddress(long time,String emailad, EmailSend email_send)
  * @param emailad
  * @param email_send
  */
-public void EmailSendByAddress(long time,long time2,String emailad, EmailSend email_send)
+public void EmailSendByAddress(long time,long time2,String emailad, EmailSend email_send,double blank_get,int blank_grab)
 {
 	email_send.send(emailad,
 			"BigDataGrab项目数据去重信息",
 			"[admin@~]NO.1行政区划归类共耗时:"+time +"s\r\n\r\n" +
 			"[admin@~]完成一天的抓取"+
-			"[admin@~]一共使用" + time2 +"min。\r\n");
+			"[admin@~]一共使用" + time2 +"min。\r\n"+
+			"[admin@~]空抓后抓取成功次数/空抓次数为" + blank_get +"/"+ blank_grab +"。\r\n");
+	
 	}
 /**
  * @author coco1

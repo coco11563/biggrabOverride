@@ -206,7 +206,7 @@ public class GetData
 	 * @throws InterruptedException 
 	 * 
 	 */
-	public static void getSinaData_new_test ( 	String 							collection_name,
+	public static double getSinaData_new_test ( 	String 							collection_name,
 																				double 							lat_min,
 																				double 							lon_min, 
 																				double 							lat_max, 
@@ -234,7 +234,8 @@ public class GetData
 		int 	count 					= 50;			// 每页数据量
 		int 	pages 					= 1;			// 取大于一的数，为了处理最后一页URL。取大了并不会影响，下面会求出精确的数值。
 		int 	data_total_number 		= 0;			// 记录地区总的微博量
-		double	latlon					= 0.1;//11132吗M＝0.1度
+		double 	voidGetNum					= 0;			//统计空抓后抓到次数
+		double	latlon					= 0.1;//11132M＝0.1度
 		for ( int i = 0; i < 2; i++ )
 		{
 			if ( i == 1 )
@@ -265,6 +266,7 @@ public class GetData
 						sim_whole++;
 						
 						// 情况一：取空：有时候再取几次就能取到数据
+						// 添加抓空后抓取成功次数统计
 						if ( json_data.equals ( "[]" ) )
 						{
 							if(2 > blank_back)//重复取空3次，就舍弃，认为是不存在数据（基本是不存在数据，实际未证实）
@@ -309,8 +311,12 @@ public class GetData
 						// 情况三：正常
 						else
 						{
+							if(blank_back != 0)//当这次抓取之前有空抓
+							{
+								voidGetNum ++ ;
+							}
 							// 解析json数据
-						
+							
 							try{
 							JSONObject js = new JSONObject ( json_data );
 							if ( !js.getString ( "total_number" ).equals ( "" ) )
@@ -367,6 +373,8 @@ public class GetData
 		}
 		Statistics.statisticsWrite ( sim_whole, sim_error, sim_blank, 0, 0, 0 );
 		System.gc ( );
+		double rate = voidGetNum;
+		return rate;
 	}
 	
 	/**

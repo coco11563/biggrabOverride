@@ -108,7 +108,8 @@ public class main
 			String [ ] date_conf = readConfig.read_date_config ( );
 			String start_time = date_conf [ 0 ];
 			String last_days = date_conf [ 1 ];
-			
+			double blank_get = 0 ;
+			int grab_blank = 0 ;
 			//创建邮件发送对象。
 			EmailSend email_send = new EmailSend();
 			//统计信息刷新。
@@ -185,9 +186,10 @@ public class main
 					///////////////////////////////////////////////////////////////////////////////////////////////////
 					
 //					GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
-					GetData.getSinaData_new_test( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
+					blank_get = blank_get + GetData.getSinaData_new_test( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
 					
 					OperMongo.closeDB ( );
+					grab_blank = grab_statistic.getInt ( "grab_blank_num" );
 				}
 				//coco1 add at 2016年6月1日20:26:22
 				//针对某几个区域进行精细抓取，抓取半径设置为5000
@@ -227,7 +229,7 @@ public class main
 				long end_all = System.currentTimeMillis ( );
 				for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
 				{
-					email_send.EmailSendByAddress((end-start)/1000,(end_all - start_all)/(1000 * 60) , email_addresses[mailnum], email_send);
+					email_send.EmailSendByAddress((end-start)/1000,(end_all - start_all)/(1000 * 60) , email_addresses[mailnum], email_send,blank_get,grab_blank);
 				}
 				
 				
