@@ -24,6 +24,7 @@ import grab.importdata.MySQLImport;
 import grab.sina.config.readConfig;
 import grab.sina.data.AreaData;
 import grab.sina.data.GetData;
+import grab.sina.data.Point;
 import grab.sina.data.ProcessData;
 import grab.sina.data.statistics.Statistics;
 
@@ -46,10 +47,10 @@ public class main
 		long start_all = System.currentTimeMillis ( );
 		try
 		{
-		
+			
 			LinkedList < AreaData > location = new LinkedList < AreaData > ( );
 			LinkedList < AreaData > meticulouslocation = new LinkedList < AreaData > ( );//精细抓取区域，计划包涵北上广深武汉杭州
-			
+			LinkedList <Point> pointStatusList = new LinkedList < Point > (); //存储每次抓取的抓取情况
 			location.add ( new AreaData ( 39, 41, 111, 118.5 ) );// 京津唐冀地区
 			location.add ( new AreaData ( 27.5, 32, 120.5, 122 ) );// 沪杭
 			location.add ( new AreaData ( 22, 24.25, 107, 114.5 ) );// 两广
@@ -108,6 +109,7 @@ public class main
 			String [ ] date_conf = readConfig.read_date_config ( );
 			String start_time = date_conf [ 0 ];
 			String last_days = date_conf [ 1 ];
+			String continued_days = date_conf[ 2 ];
 			double blank_get = 0 ;
 			int grab_blank = 0 ;
 			//创建邮件发送对象。
@@ -120,7 +122,7 @@ public class main
 				date_conf = readConfig.read_date_config ( );
 				start_time = date_conf [ 0 ];
 				last_days = date_conf [ 1 ];
-				
+				continued_days = date_conf[ 2 ];
 				SimpleDateFormat sdf = new SimpleDateFormat ( "yyyy-MM-dd" );
 				Date date = sdf.parse (start_time);
 				Calendar c = Calendar.getInstance ( );
@@ -152,7 +154,9 @@ public class main
 				/**/}																			/**/
 				/******************************JiaJun Lee,2015.01.07*******************************/
 				/**********************************************************************************/
-				
+				LinkedList<Point> swap = new LinkedList<Point>();
+				if(Integer.parseInt(continued_days) <= 7)//首次执行或者到了刷新日
+				{
 				for ( int j = 0; j < location.size ( ); j++ )
 				{
 					OperMongo.connectDB ( );
@@ -186,10 +190,54 @@ public class main
 					///////////////////////////////////////////////////////////////////////////////////////////////////
 					
 //					GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
-					blank_get = blank_get + GetData.getSinaData_new_test( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
+					swap.addAll(GetData.getSinaData_init_list( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time));
 					
 					OperMongo.closeDB ( );
 					grab_blank = grab_statistic.getInt ( "grab_blank_num" );
+				}
+			}
+				else
+				{
+					swap = readConfig.readPointType();
+					LinkedList<Point> store = new LinkedList<Point>();
+					for ( int j = 0; j < location.size ( ); j++ )
+					{
+						OperMongo.connectDB ( );
+						AreaData lat_lon = location.get ( j );
+						lat_min = lat_lon.getLat_min ( );
+						lon_min = lat_lon.getLon_min ( );
+						lat_max = lat_lon.getLat_max ( );
+						lon_max = lat_lon.getLon_max ( );
+						///////////////////////////////////////////////////////////////////////////////////////////////////
+						//发送一封邮件告知开始抓取新地区
+						JSONObject statistic_json =  Statistics.statisticsRead ( );
+						JSONObject grab_statistic = statistic_json
+								.getJSONObject ( "grab_statistic" );
+						JSONObject db_statistic = statistic_json
+								.getJSONObject ( "db_statistic" );
+						SimpleDateFormat df = new SimpleDateFormat (
+								"yyyy-MM-dd HH:mm:ss" );// 设置日期格式
+						String email_addresses[] = readConfig.read_email_address_config ( );//发送前读取可以在程序运转过程中添加服务邮箱。
+						
+						
+						 
+						//要求降低信息发送频率，定制一额发送
+						//有的时候库里只有14个
+						if(0==j || 5==j|| 9==j || 15==j )
+						{
+							for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
+							{
+							email_send.EmailSendByAddress(email_addresses[mailnum], df, sdf, grab_statistic, c, email_send);
+							}
+							}
+						///////////////////////////////////////////////////////////////////////////////////////////////////
+						
+//						GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
+						store = GetData.getSinaData_after_list(swap, collection_name, lat_min, lon_min, lat_max, lon_max, unix_start_time, unix_end_time);
+						readConfig.writePointType(store);
+						OperMongo.closeDB ( );
+						grab_blank = grab_statistic.getInt ( "grab_blank_num" );
+					}
 				}
 				//coco1 add at 2016年6月1日20:26:22
 				//针对某几个区域进行精细抓取，抓取半径设置为5000

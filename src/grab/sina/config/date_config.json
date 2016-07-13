@@ -7,5 +7,6 @@
 		"description":"开始时间抓取数据的日期和抓取的数据的天数",
 		"start_time":"2015-05-21",
 		"last_days":"365"
+		"continue_days":"0"
 		}
 }
