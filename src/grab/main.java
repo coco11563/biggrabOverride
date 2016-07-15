@@ -232,11 +232,11 @@ public class main
 						///////////////////////////////////////////////////////////////////////////////////////////////////
 						
 //						GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
-						store = GetData.getSinaData_train_list(swap, collection_name, lat_min, lon_min, lat_max, lon_max, unix_start_time, unix_end_time);
-						readConfig.writePointType(store);
+						store.addAll(GetData.getSinaData_train_list(swap, collection_name, lat_min, lon_min, lat_max, lon_max, unix_start_time, unix_end_time));
 						OperMongo.closeDB ( );
 						grab_blank = grab_statistic.getInt ( "grab_blank_num" );
 					}
+					readConfig.writePointType(store);
 				}
 				else if(Integer.parseInt(continued_days) > 7&&Integer.parseInt(continued_days)<=30)//30天使用
 				{
