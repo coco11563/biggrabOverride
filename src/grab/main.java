@@ -50,7 +50,6 @@ public class main
 			
 			LinkedList < AreaData > location = new LinkedList < AreaData > ( );
 			LinkedList < AreaData > meticulouslocation = new LinkedList < AreaData > ( );//精细抓取区域，计划包涵北上广深武汉杭州
-			LinkedList <Point> pointStatusList = new LinkedList < Point > (); //存储每次抓取的抓取情况
 			location.add ( new AreaData ( 39, 41, 111, 118.5 ) );// 京津唐冀地区
 			location.add ( new AreaData ( 27.5, 32, 120.5, 122 ) );// 沪杭
 			location.add ( new AreaData ( 22, 24.25, 107, 114.5 ) );// 两广
@@ -155,7 +154,7 @@ public class main
 				/******************************JiaJun Lee,2015.01.07*******************************/
 				/**********************************************************************************/
 				LinkedList<Point> swap = new LinkedList<Point>();
-				if(Integer.parseInt(continued_days) <= 7)//首次执行或者到了刷新日
+				if(Integer.parseInt(continued_days) == 0)//首次执行初始化矩阵
 				{
 				for ( int j = 0; j < location.size ( ); j++ )
 				{
@@ -191,12 +190,12 @@ public class main
 					
 //					GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
 					swap.addAll(GetData.getSinaData_init_list( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time));
-					
+					readConfig.writePointType(swap);
 					OperMongo.closeDB ( );
 					grab_blank = grab_statistic.getInt ( "grab_blank_num" );
 				}
 			}
-				else
+				else if(Integer.parseInt(continued_days) <= 7)//七天训练
 				{
 					swap = readConfig.readPointType();
 					LinkedList<Point> store = new LinkedList<Point>();
@@ -233,8 +232,51 @@ public class main
 						///////////////////////////////////////////////////////////////////////////////////////////////////
 						
 //						GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
-						store = GetData.getSinaData_after_list(swap, collection_name, lat_min, lon_min, lat_max, lon_max, unix_start_time, unix_end_time);
+						store = GetData.getSinaData_train_list(swap, collection_name, lat_min, lon_min, lat_max, lon_max, unix_start_time, unix_end_time);
 						readConfig.writePointType(store);
+						OperMongo.closeDB ( );
+						grab_blank = grab_statistic.getInt ( "grab_blank_num" );
+					}
+				}
+				else if(Integer.parseInt(continued_days) > 7&&Integer.parseInt(continued_days)<=30)//30天使用
+				{
+					swap = readConfig.readPointType();
+					
+					for ( int j = 0; j < location.size ( ); j++ )
+					{
+						OperMongo.connectDB ( );
+						AreaData lat_lon = location.get ( j );
+						lat_min = lat_lon.getLat_min ( );
+						lon_min = lat_lon.getLon_min ( );
+						lat_max = lat_lon.getLat_max ( );
+						lon_max = lat_lon.getLon_max ( );
+						///////////////////////////////////////////////////////////////////////////////////////////////////
+						//发送一封邮件告知开始抓取新地区
+						JSONObject statistic_json =  Statistics.statisticsRead ( );
+						JSONObject grab_statistic = statistic_json
+								.getJSONObject ( "grab_statistic" );
+						JSONObject db_statistic = statistic_json
+								.getJSONObject ( "db_statistic" );
+						SimpleDateFormat df = new SimpleDateFormat (
+								"yyyy-MM-dd HH:mm:ss" );// 设置日期格式
+						String email_addresses[] = readConfig.read_email_address_config ( );//发送前读取可以在程序运转过程中添加服务邮箱。
+						
+						
+						 
+						//要求降低信息发送频率，定制一额发送
+						//有的时候库里只有14个
+						if(0==j || 5==j|| 9==j || 15==j )
+						{
+							for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
+							{
+							email_send.EmailSendByAddress(email_addresses[mailnum], df, sdf, grab_statistic, c, email_send);
+							}
+							}
+						///////////////////////////////////////////////////////////////////////////////////////////////////
+						
+//						GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
+						GetData.getSinaData_use_list(swap, collection_name,  unix_start_time, unix_end_time);
+						
 						OperMongo.closeDB ( );
 						grab_blank = grab_statistic.getInt ( "grab_blank_num" );
 					}

@@ -87,7 +87,7 @@ public class readConfig {
 	public static String date_path = "/home/biggrab/config/date_config.json";
 	public static String token_path = "/home/biggrab/config/sina_token.json";
 	public static String email_path = "/home/biggrab/config/email_address_config.json";
-	public static String point_path = "D:\\FILE\\workspace\\biggrabOverride\\src\\grab\\sina\\config\\pointType.json";
+	public static String point_path = "/home/biggrab/config/pointType.json";
 
 	public static LinkedList<Point> readPointType() throws JSONException, IOException {
 		LinkedList<Point> data = new LinkedList<Point>();
