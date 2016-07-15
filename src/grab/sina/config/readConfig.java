@@ -180,7 +180,7 @@ public class readConfig {
 		String str_date_config_json = readFile(date_path);
 		JSONObject date_config_json = new JSONObject(str_date_config_json);
 		JSONObject date_json = date_config_json.getJSONObject("date");
-		String[] date = new String[2];
+		String[] date = new String[3];
 		date[0] = date_json.getString("start_time");
 		date[1] = date_json.getString("last_days");
 		date[2] = date_json.getString("continue_days");
