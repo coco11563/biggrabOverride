@@ -13,6 +13,20 @@ import json.JSONException;
 import json.JSONObject;
 
 public class getCityName {
+	/*
+	 * 百度API所需要的key
+	 */
+	static String [] keystore = {
+						  "Q9D8ftvpm5PRFvAK4gkM4HguKuVRXCHe",
+						  "M9RleXI0sKd2rgMvgiQLu0LghaHAB7Zc",
+						  "396489b6094a72b5a5c6c2e1c68f4c59",
+						  "h7EYvV3K66Ve7ZlNgg8IqCQnlzA9Y2KI",
+						  "pUav7azIRzYtBlCht6FG8hn8r4j3Stgx",
+						  "pRpvlXLnN3Y0s7EHnERy73ezGq4H5LFo",
+						  "8mjXttwdGncaoZxGLjGdxYzh1Q9XrQ4H",
+						  "2tNp5WOMa8buj0i1gnErEnDLhOYWTfNG",
+						  "nW6njT4Za5bnMGLEO8AaAfi3Wyu2ww8u0",
+						  "N3kkevWBh1hTSuigNHODGmYiUsngR5EM"};
 	/**
 	 * 用来调用url
 	 * @param url
@@ -86,13 +100,22 @@ public class getCityName {
 	 * @return 省市名 0province 1city
 	 * @throws IOException
 	 */
-	public static String[] pcn_getProCityNameURL(double [] location) throws  IOException
+	public static String[] pcn_getProCityNameURL(double [] location , int index) throws  IOException
 	{
+		
 		String[]			cityName			=		null;
+		String 				key 				= keystore[index];
+		if(index > 9)
+		{
+			cityName[0] = "exception province";
+			cityName[1] = "exception city";
+			System.out.println ( location[0]+"\t"+location[1] + ":\t" + cityName[0]+"-"+cityName[1]);
+			return cityName;
+		}
 		try
 		{
 //			String 				url						=		"http://api.map.baidu.com/geocoder?location="+location[0]+","+location[1]+"&output=json&key=28bcdd84fae25699606ffad27f8da77b" ;
-			String  			url						=  		"http://api.map.baidu.com/geocoder/v2/?ak=Q9D8ftvpm5PRFvAK4gkM4HguKuVRXCHe&location="+location[0]+","+location[1]+"&output=json&coordtype=gcj02ll";
+			String  			url						=  		"http://api.map.baidu.com/geocoder/v2/?ak="+key+"&location="+location[0]+","+location[1]+"&output=json&coordtype=gcj02ll";
 			String 				baiduLocation 	= 		pcn_connUrl(url) ;
 			JSONObject 		temp_object		=		new JSONObject(baiduLocation) ;
 			temp_object		= 		temp_object.getJSONObject("result") ;
@@ -109,9 +132,8 @@ public class getCityName {
 		}
 		catch(Exception e)
 		{
-			cityName		=		new String[2] ;
-			cityName[0]	=	"Exception" ;
-			cityName[1]	=	"Exception" ;
+			
+			cityName		=		pcn_getProCityNameURL(location , index++) ;
 			return cityName;
 		}
 	}

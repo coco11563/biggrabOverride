@@ -147,7 +147,7 @@ public class main
 							double[] coordinary = new double[2];
 							coordinary[0] = lat ; 
 							coordinary[1] = lon ;
-							String[] city = getCityName.pcn_getProCityNameURL(coordinary);
+							String[] city = getCityName.pcn_getProCityNameURL(coordinary , 0);
 							point tempp = new point(city[0],city[1]);//0省1城
 							try {
 								kdtree.insert(coordinary, tempp);
