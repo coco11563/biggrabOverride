@@ -107,6 +107,7 @@ public class getCityName {
 		String 				key 				= keystore[index];
 		if(index > 9)
 		{
+			cityName			=		new String[2] ;
 			cityName[0] = "exception province";
 			cityName[1] = "exception city";
 			System.out.println ( location[0]+"\t"+location[1] + ":\t" + cityName[0]+"-"+cityName[1]);
