@@ -3,6 +3,9 @@ package grab;
 
 
 import java.io.IOException;
+import method.getCityName;
+import method.point;
+
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -18,6 +21,10 @@ import json.JSONObject;
 import stor.OperMongo;
 
 import com.mongodb.DB;
+
+import datastruct.KDTree;
+import datastruct.KeyDuplicateException;
+import datastruct.KeySizeException;
 /*
 import grab.importdata.HbaseImport;*/
 import grab.importdata.MySQLImport;
@@ -89,7 +96,8 @@ public class main
 		meticulouslocation.add ( new AreaData ( 23.0,23.21,113.21,113.46 ) );	//广州
 		meticulouslocation.add ( new AreaData ( 22.86,22.55,113.64,114.59) );	//深圳
 		meticulouslocation.add ( new AreaData ( 30.06,30.42,119.85,120.43 ) );	//杭州
-
+		KDTree<point> kdtree = new KDTree<point>(2); //定义一个2D树
+		
 			
 			
 			double lat_min;
@@ -111,6 +119,49 @@ public class main
 			String continued_days = date_conf[ 2 ];
 			double blank_get = 0 ;
 			int grab_blank = 0 ;
+			//初始化地理索引
+			for ( int j = 0; j < location.size ( ); j++ )
+			{
+				AreaData lat_lon = location.get ( j );
+				lat_min = lat_lon.getLat_min ( );
+				lon_min = lat_lon.getLon_min ( );
+				lat_max = lat_lon.getLat_max ( );
+				lon_max = lat_lon.getLon_max ( );
+				double	latlon					= 0.1;//11132M＝0.1度
+				
+				for ( int i = 0; i < 2; i++ )
+				{
+					if ( i == 1 )
+					{
+						lat_min 	= lat_min 	+ latlon;
+						lon_min 	= lon_min 	+ latlon;
+						lat_max 	= lat_max	- latlon;
+						lon_max 	= lon_max 	- latlon;
+					}
+					for ( double lat = lat_min; lat < lat_max - latlon; lat = lat + 2*latlon )
+					{
+						for ( double lon = lon_min; lon < lon_max - latlon; lon = lon + 2*latlon )
+						{
+							System.out.println(lon+" " +lat);
+							double[] coordinary = new double[2];
+							coordinary[0] = lat ; 
+							coordinary[1] = lon ;
+							String[] city = getCityName.pcn_getProCityNameURL(coordinary);
+							point tempp = new point(city[0],city[1]);//0省1城
+							try {
+								kdtree.insert(coordinary, tempp);
+							} catch (KeySizeException | KeyDuplicateException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
+					
+					
+				}
+			}
+			//初始化地理索引
+			
 			//创建邮件发送对象。
 			EmailSend email_send = new EmailSend();
 			//统计信息刷新。
@@ -314,7 +365,7 @@ public class main
 				//数据导出
 				OperMongo.connectDB ( ) ;
 				start = System.currentTimeMillis ( );
-				OperMongo.export_date_pro_city_json ( Adress.exportJsonPath ) ;				
+				OperMongo.export_date_pro_city_json ( Adress.exportJsonPath,kdtree ) ;				
 				end = System.currentTimeMillis ( );
 				long end_all = System.currentTimeMillis ( );
 				for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)

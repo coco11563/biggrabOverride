@@ -19,6 +19,8 @@ import java.util.Set;
 
 import json.JSONException;
 import json.JSONObject;
+import method.getCityName;
+import method.point;
 
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
@@ -27,6 +29,8 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
+
+import datastruct.KDTree;
 
 /**
  * 
@@ -281,7 +285,7 @@ public class OperMongo
 	 * @throws ParseException 
 	 * 
 	 */
-	public static void export_date_pro_city_json (	String 					output_path) 
+	public static void export_date_pro_city_json (	String 					output_path , KDTree<point> kdtree) 
 																		throws	 				IOException, 
 																									JSONException, ParseException
 	{
@@ -319,7 +323,8 @@ public class OperMongo
 					while(cursor.hasNext ( ))
 					{
 						write_json_object 	= 		new JSONObject(cursor.next ( ).toString ( )) ;			
-						ProCity 					= 		ProcessData.pcn_getProCityName ( write_json_object ) ;
+						//ProCity 					= 		ProcessData.pcn_getProCityName ( write_json_object ) ;
+						ProCity 					= 		getCityName.KnnCity(kdtree,  write_json_object ) ;
 						date						=		write_json_object.getString ( "created_at" ) ;
 						date						=		ProcessData.date_parse ( date ) ;
 						write_json_object.remove ( "_id" ) ;
