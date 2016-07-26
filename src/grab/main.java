@@ -120,6 +120,7 @@ public class main
 			double blank_get = 0 ;
 			int grab_blank = 0 ;
 			//初始化地理索引
+			System.out.println("正在初始化地理索引");
 			for ( int j = 0; j < location.size ( ); j++ )
 			{
 				AreaData lat_lon = location.get ( j );
@@ -160,8 +161,8 @@ public class main
 					
 				}
 			}
-			//初始化地理索引
-			
+			//初始化地理索引完成
+			System.out.println("初始化地理索引完成");
 			//创建邮件发送对象。
 			EmailSend email_send = new EmailSend();
 			//统计信息刷新。
