@@ -285,6 +285,14 @@ public class OperMongo
 	 * @throws ParseException 
 	 * 
 	 */
+	/**
+	 * 更改了获取城市名的方法
+	 * @param output_path
+	 * @param kdtree
+	 * @throws IOException
+	 * @throws JSONException
+	 * @throws ParseException
+	 */
 	public static void export_date_pro_city_json (	String 					output_path , KDTree<point> kdtree) 
 																		throws	 				IOException, 
 																									JSONException, ParseException
