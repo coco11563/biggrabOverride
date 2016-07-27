@@ -116,7 +116,7 @@ public class getCityName {
 		}
 		catch(Exception e)
 		{
-			
+			cityName			=		new String[2] ;
 			cityName[0] = "exception province";
 			cityName[1] = "exception city";
 			System.out.println ( location[0]+"\t"+location[1] + ":\t" + cityName[0]+"-"+cityName[1]);
