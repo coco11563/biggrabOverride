@@ -17,15 +17,6 @@ public class getCityName {
 	 * 百度API所需要的key
 	 */
 	static String [] keystore = {
-						  "Q9D8ftvpm5PRFvAK4gkM4HguKuVRXCHe",
-						  "M9RleXI0sKd2rgMvgiQLu0LghaHAB7Zc",
-						  "396489b6094a72b5a5c6c2e1c68f4c59",
-						  "h7EYvV3K66Ve7ZlNgg8IqCQnlzA9Y2KI",
-						  "pUav7azIRzYtBlCht6FG8hn8r4j3Stgx",
-						  "pRpvlXLnN3Y0s7EHnERy73ezGq4H5LFo",
-						  "8mjXttwdGncaoZxGLjGdxYzh1Q9XrQ4H",
-						  "2tNp5WOMa8buj0i1gnErEnDLhOYWTfNG",
-						  "nW6njT4Za5bnMGLEO8AaAfi3Wyu2ww8u0",
 						  "N3kkevWBh1hTSuigNHODGmYiUsngR5EM"};
 	/**
 	 * 用来调用url
@@ -105,14 +96,6 @@ public class getCityName {
 		
 		String[]			cityName			=		null;
 		String 				key 				= keystore[index];
-		if(index > 9)
-		{
-			cityName			=		new String[2] ;
-			cityName[0] = "exception province";
-			cityName[1] = "exception city";
-			System.out.println ( location[0]+"\t"+location[1] + ":\t" + cityName[0]+"-"+cityName[1]);
-			return cityName;
-		}
 		try
 		{
 //			String 				url						=		"http://api.map.baidu.com/geocoder?location="+location[0]+","+location[1]+"&output=json&key=28bcdd84fae25699606ffad27f8da77b" ;
@@ -134,7 +117,9 @@ public class getCityName {
 		catch(Exception e)
 		{
 			
-			cityName		=		pcn_getProCityNameURL(location , index++) ;
+			cityName[0] = "exception province";
+			cityName[1] = "exception city";
+			System.out.println ( location[0]+"\t"+location[1] + ":\t" + cityName[0]+"-"+cityName[1]);
 			return cityName;
 		}
 	}
