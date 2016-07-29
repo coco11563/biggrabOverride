@@ -111,7 +111,6 @@ public class grabPosition {
 			String[] city = getCityName.pcn_getProCityNameURL(coor.get(i));
 			point tempp = new point(city[0],city[1]);//0省1城
 			ret.insert(coor.get(i), tempp);
-			break;
 		} catch (KeySizeException | KeyDuplicateException e) {
 			// TODO Auto-generated catch block
 			System.out.println("wrong in insert into KDTree");
