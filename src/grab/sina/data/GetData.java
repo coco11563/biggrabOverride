@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +19,7 @@ import stor.OperMongo;
 import json.JSONArray;
 import json.JSONException;
 import json.JSONObject;
+import mail.EmailSend;
 import grab.sina.config.readConfig;
 import grab.sina.data.statistics.Statistics;
 
@@ -410,12 +413,14 @@ public class GetData
 	 * @param unix_end_time
 	 * 
 	 */
-	public static LinkedList<Point>	 getSinaData_train_list ( 					LinkedList<Point>				pointType,			
+	public static LinkedList<Point>	 getSinaData_train_list ( 					String[] emailad ,
+																				SimpleDateFormat df ,
+																				SimpleDateFormat sdf ,	
+																				JSONObject grab_statistic ,								
+																				Calendar c ,
+																				EmailSend email_send,			
+																				LinkedList<Point>				pointType,			
 																				String 							collection_name,
-																				double 							lat_min,
-																				double 							lon_min, 
-																				double 							lat_max, 
-																				double 							lon_max,
 																				long 							unix_start_time, 
 																				long 							unix_end_time ) 
 																				throws 
@@ -439,174 +444,132 @@ public class GetData
 		int 	count 					= 50;			// 每页数据量
 		int 	pages 					= 1;			// 取大于一的数，为了处理最后一页URL。取大了并不会影响，下面会求出精确的数值。
 		int 	data_total_number 		= 0;			// 记录地区总的微博量
-		double	latlon					= 0.1;//11132M＝0.1度
-		int 	index 					= 0;			//记录这是链表中第几个
 		LinkedList <Point> returndata = new LinkedList<Point>();
-		for ( int i = 0; i < 2; i++ )
+		for(int i = 0 ; i < pointType.size(); i++)
 		{
-			if ( i == 1 )
+			Point p = pointType.get(i); //得到这个点的信息
+			double lat = p.getLat();
+			double lon = p.getLng();
+			Point temp = new Point();       //这个用来存储更新的信息
+			int grabnum = p.getNum();
+			int type = p.getPointType();
+			int last = p.getLastgrab();
+//			blank_back = 0;
+			error_back = 0;
+			for ( int page = 1; page <= pages; page++ )
 			{
-				lat_min 	= lat_min 	+ latlon;
-				lon_min 	= lon_min 	+ latlon;
-				lat_max 	= lat_max	- latlon;
-				lon_max 	= lon_max 	- latlon;
-			}
-			for ( double lat = lat_min; lat < lat_max - latlon; lat = lat + 2*latlon )
-			{
-				for ( double lon = lon_min; lon < lon_max - latlon; lon = lon + 2*latlon )
+			// 计算使用的账户
+				access_token_current = access_token_current% ( access_token_total );
+				String URL = ProcessData.url_nearby_timeline (access_token [ access_token_current ], lat,lon, unix_end_time, unix_start_time,area_range, count, page );
+				Thread.sleep(100);//降低访问频率的关键点一：休眠
+				System.out.println ( "\r\n\r\n该区域第：" + sim_whole+ "次抓取。" );
+				System.out.println ( "开始获取：" + URL );
+				System.out.println ( "抓取日期：" + collection_name );
+				System.out.println ( "纬度：" + lat + "度。" );
+				System.out.println ( "经度：" + lon + "度。" );
+				String json_data = ProcessData.connUrl ( URL );
+				sim_whole++;
+				
+				//目前取消第二次抓取
+				//空抓后有数据/空抓总数：71.0/63786。
+				if ( json_data.equals ( "[]" ) )
 				{
-					
-					Point p = pointType.get(index); //得到这个点的信息
-					Point temp = new Point();       //这个用来存储更新的信息
-					int grabnum = p.getNum();
-					int type = p.getPointType();
-					int last = p.getLastgrab();
-//					blank_back = 0;
-					error_back = 0;
-					for ( int page = 1; page <= pages; page++ )
-					{
-						// 计算使用的账户
-						access_token_current = access_token_current% ( access_token_total );
-						String URL = ProcessData.url_nearby_timeline (access_token [ access_token_current ], lat,lon, unix_end_time, unix_start_time,area_range, count, page );
-						Thread.sleep(100);//降低访问频率的关键点一：休眠
-						System.out.println ( "\r\n\r\n该区域第：" + sim_whole+ "次抓取。" );
-						System.out.println ( "开始获取：" + URL );
-						System.out.println ( "抓取日期：" + collection_name );
-						System.out.println ( "纬度：" + lat + "度。" );
-						System.out.println ( "经度：" + lon + "度。" );
-						String json_data = ProcessData.connUrl ( URL );
-						sim_whole++;
-					
-						// 情况一：取空：有时候再取几次就能取到数据
-						// 添加抓空后抓取成功次数统计
-						// 实验后发现3W次抓空后仅有32次能够再次抓取到数据，所以在这里取消第二次抓取
-						/*if ( json_data.equals ( "[]" ) )
-						{
-							if(2 > blank_back)//重复取空3次，就舍弃，认为是不存在数据（基本是不存在数据，实际未证实）
-							{
-								blank_back++;
-								sim_blank++;
-								page--;
-								
-								System.out.println ( "-----------取空->重取-------------\r\n\r\n" );
-								continue;
-							}
-							else
-							{
-								blank_back = 0;
-								sim_blank++;
-								
-								System.out.println ( "-----------取空->舍弃-------------\r\n\r\n" );
-								break;
-							}
-						}*/
-						//目前取消第二次抓取
-						//空抓后有数据/空抓总数：71.0/63786。
-						if ( json_data.equals ( "[]" ) )
-						{
-								sim_blank++;
-								System.out.println ( "-----------取空->舍弃-------------\r\n\r\n" );
-								temp.set(lat, lon, type - 1 , 0, grabnum);	
-								break;
-						}
-						// 情况二：取错：ERROR，说明该账户请求次数超出限制。
-						else if ( json_data == "error" )
-						{
-							sim_error++;
-							error_back++;
-							page--;
-							access_token_current++;
+						sim_blank++;
+						System.out.println ( "-----------取空->舍弃-------------\r\n\r\n" );
+						temp.set(lat, lon, type - 1 , 0, grabnum);	
+						break;
+				}
+				// 情况二：取错：ERROR，说明该账户请求次数超出限制。
+				else if ( json_data == "error" )
+				{
+					sim_error++;
+					error_back++;
+					page--;
+					access_token_current++;
 							
-							if(error_back<access_token_total * 2)//如果刷过两轮所有的access_token都取错，证明次数不够了，休眠到下一个整点才开始继续取数据。
-							{
-								System.out.println ( "-----------取错->换Key-------------\r\n\r\n" );
-							}
-							else
-							{
-								long time = ProcessData.getSecondsToNextClockSharp();
-								System.out.println ( "---------取错->休眠至整点:"+time+"s----------\r\n\r\n" );
-								Thread.sleep(1000*time);
-								error_back = 0;
-							}
+				if(error_back<access_token_total * 2)//如果刷过两轮所有的access_token都取错，证明次数不够了，休眠到下一个整点才开始继续取数据。
+				{
+					System.out.println ( "-----------取错->换Key-------------\r\n\r\n" );
+					}
+				else
+				{
+					long time = ProcessData.getSecondsToNextClockSharp();
+					System.out.println ( "---------取错->休眠至整点:"+time+"s----------\r\n\r\n" );
+					Thread.sleep(1000*time);
+					error_back = 0;
+					}
+				continue;
+				}
+				// 情况三：正常
+				else
+				{		
+				// 解析json数据		
+				try{
+					JSONObject js = new JSONObject ( json_data );
+					if ( !js.getString ( "total_number" ).equals ( "" ) )
+					{
+						data_total_number = Integer.parseInt ( js.getString ( "total_number" ) );
+						temp.set(lat, lon, type+ 1 , data_total_number, grabnum + Integer.parseInt ( js.getString ( "total_number" ) ));		
+					}
+					else
+					{	
+						break;
+					}							
+					//下一次页面处理计算
+					pages = data_total_number / 50 + 1;			
+					// 建立数据数组
+					JSONArray array = new JSONArray ( );
+					if ( false == js.isNull ( "statuses" ) )
+						array = js.getJSONArray ( "statuses" );
+					else
+						break;
+							
+					// 插入到数据库中数据
+					for ( int j = 0; j < array.length ( ); j++ )
+					{
+						String geo = array.getJSONObject ( j ).getString ( "geo" );
+						if ( geo.equals ( "null" ) )
+						{
 							continue;
 						}
-						// 情况三：正常
-						else
+						JSONObject geoObject = new JSONObject ( geo );
+						if ( geoObject.getString ( "coordinates" ).equals ( "null" ) )
 						{
-							
-							// 解析json数据
-							
-							try{
-							JSONObject js = new JSONObject ( json_data );
-							if ( !js.getString ( "total_number" ).equals ( "" ) )
-							{
-								
-								data_total_number = Integer.parseInt ( js.getString ( "total_number" ) );
-								
-								temp.set(lat, lon, type+ 1 , data_total_number, grabnum + Integer.parseInt ( js.getString ( "total_number" ) ));
-								
-							}
-							else
-							{
-								
-								break;
-							}
-														
-							//下一次页面处理计算
-							pages = data_total_number / 50 + 1;			
-							
-							// 建立数据数组
-							JSONArray array = new JSONArray ( );
-							if ( false == js.isNull ( "statuses" ) )
-								array = js.getJSONArray ( "statuses" );
-							else
-								break;
-							
-							// 插入到数据库中数据
-							for ( int j = 0; j < array.length ( ); j++ )
-							{
-								String geo = array.getJSONObject ( j ).getString ( "geo" );
-								if ( geo.equals ( "null" ) )
-								{
-									continue;
-								}
-								JSONObject geoObject = new JSONObject ( geo );
-								if ( geoObject.getString ( "coordinates" ).equals ( "null" ) )
-								{
-									continue;
-								}
-								String final_data = array.getJSONObject ( j ).toString ( );
-								if(final_data.contains("com.weico.topicinfo")) 
-								{
-									continue;
-								}
-								
-								double location[] = ProcessData.getGeo ( array.getJSONObject ( j ) );
-								//web墨卡托作为DB名称，时间作为Collection名称
-								OperMongo.saveData ( final_data, ProcessData.wkt_code (location [ 1 ], location [ 0 ], 5 ), ProcessData.wkt_code (location [ 1 ], location [ 0 ], 9 )+"_"+collection_name );
-							}
-							System.out.println ( "<-----------入库------------->" );
-							access_token_current++;//降低访问频率的关键点一：提高access_token切换次数。
-							}
-							catch(JSONException e)
-							{
-								System.out.println(e.getMessage());
-							}
-							// 获取总数据
-							
+							continue;
 						}
-					
-					
+						String final_data = array.getJSONObject ( j ).toString ( );
+						if(final_data.contains("com.weico.topicinfo")) 
+						{
+							continue;
+						}
+								
+						double location[] = ProcessData.getGeo ( array.getJSONObject ( j ) );
+						//web墨卡托作为DB名称，时间作为Collection名称
+						OperMongo.saveData ( final_data, ProcessData.wkt_code (location [ 1 ], location [ 0 ], 5 ), ProcessData.wkt_code (location [ 1 ], location [ 0 ], 9 )+"_"+collection_name );
+					}
+					System.out.println ( "<-----------入库------------->" );
+					access_token_current++;//降低访问频率的关键点一：提高access_token切换次数。
 				}
-					returndata.add(temp);
-					index ++ ;
-				
+					catch(JSONException e)
+					{
+						System.out.println(e.getMessage());
+					}
+							// 获取总数据
+				}
+						
+			}
+		
+		returndata.add(temp);
+		if(i % (pointType.size()/10) == 0)
+		{
+			for(int mailnum = 0 ;mailnum< emailad.length;mailnum++)
+			{
+				email_send.EmailSendByAddress(emailad[mailnum], df, sdf, grab_statistic, c, email_send);
 			}
 		}
+	}
 		Statistics.statisticsWrite ( sim_whole, sim_error, sim_blank, 0, 0, 0 );
 		System.gc ( );
-		
-		}
 		return returndata;
 	}
 	/**
@@ -624,7 +587,12 @@ public class GetData
 	 * @throws SecurityException
 	 * @throws InterruptedException
 	 */
-	public static void	 getSinaData_use_list ( 
+	public static void	 getSinaData_use_list ( String[] emailad ,
+												SimpleDateFormat df ,
+												SimpleDateFormat sdf ,
+												JSONObject grab_statistic ,								
+												Calendar c ,
+												EmailSend email_send,		
 												LinkedList<Point> pointlist,
 												String collection_name,
 												long unix_start_time, 
@@ -650,7 +618,6 @@ public class GetData
 		double lat = 0;
 		double lon = 0;
 		int type  ;
-		
 		for(int i = 0 ; i < pointlist.size() ; i ++ )
 		{
 			lat = pointlist.get(i).getLat();
@@ -762,41 +729,51 @@ public class GetData
 			// 获取总数据
 
 		}
+				
 	}
+			if(i % (pointlist.size()/10) == 0) //每执行10%发送一次邮件
+			{
+			for(int mailnum = 0 ;mailnum< emailad.length;mailnum++)
+			{
+			email_send.EmailSendByAddress(emailad[mailnum], df, sdf, grab_statistic, c, email_send);
+			}
+			}
 }
-
+		
 
 Statistics.statisticsWrite(sim_whole, sim_error, sim_blank, 0, 0, 0);
 System.gc();
 	}
 	/**
-	 * @author Shaow
-	 * 
-	 * 在未初始化或者刷新pointType时使用这个函数
-	 * 
-	 * 返回初始化后的linked list
-	 * 
+	 * 第一次执行或者刷新时执行这个函数
+	 * 每10%抓取区域发送一次邮件
+	 * @param emailad
+	 * @param df
+	 * @param sdf
+	 * @param grab_statistic
+	 * @param c
+	 * @param email_send
 	 * @param collection_name
-	 * 
-	 * @param lat_min
-	 * 
-	 * @param lon_min
-	 * 
-	 * @param lat_max
-	 * 
-	 * @param lon_max
-	 * 
+	 * @param coor
 	 * @param unix_start_time
-	 * 
 	 * @param unix_end_time
-	 * 
+	 * @return
+	 * @throws JSONException
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws SQLException
+	 * @throws NoSuchFieldException
+	 * @throws SecurityException
+	 * @throws InterruptedException
 	 */
-	public static LinkedList<Point>	 getSinaData_init_list ( 								
+	public static LinkedList<Point>	 getSinaData_init_list ( 					String[] emailad ,
+			   																	SimpleDateFormat df ,
+			   																	SimpleDateFormat sdf ,
+			   																	JSONObject grab_statistic ,								
+			   																	Calendar c ,
+			   																	EmailSend email_send,			
 																				String 							collection_name,
-																				double 							lat_min,
-																				double 							lon_min, 
-																				double 							lat_max, 
-																				double 							lon_max,
+																				ArrayList<double[]>				coor,
 																				long 							unix_start_time, 
 																				long 							unix_end_time ) 
 																				throws 
@@ -814,7 +791,7 @@ System.gc();
 		int 	sim_whole 				= 0; 			// 累计总数据
 		int 	sim_error 				= 0; 			// 累计取错
 		int 	sim_blank 				= 0; 			// 累计取空
-		int		blank_back				= 0; 			// 一次URL取数据累计取空次数
+//		int		blank_back				= 0; 			// 一次URL取数据累计取空次数
 		int		error_back				= 0;			// 一次URL取数据累计取空次数
 		int 	area_range 				= 11132;	// 数据辐射半径
 		int 	count 					= 50;			// 每页数据量
@@ -822,23 +799,14 @@ System.gc();
 		int 	data_total_number 		= 0;			// 记录地区总的微博量
 		double	latlon					= 0.1;//11132M＝0.1度
 		LinkedList <Point> data = new LinkedList<Point>();
-		for ( int i = 0; i < 2; i++ )
-		{
-			if ( i == 1 )
+			for(int j = 0 ; j < coor.size() ; j ++)
 			{
-				lat_min 	= lat_min 	+ latlon;
-				lon_min 	= lon_min 	+ latlon;
-				lat_max 	= lat_max	- latlon;
-				lon_max 	= lon_max 	- latlon;
-			}
-			for ( double lat = lat_min; lat < lat_max - latlon; lat = lat + 2*latlon )
-			{
-				for ( double lon = lon_min; lon < lon_max - latlon; lon = lon + 2*latlon )
-				{
+					double lat = coor.get(j)[0];
+					double lon = coor.get(j)[1];
 					Point temp = new Point();
-					int grabnum = temp.getNum();
-					int type = temp.getPointType();
-					int last = temp.getLastgrab();
+					int grabnum = 0; //init as 0
+					int type = 0; //init as 0
+					int last = 0; //init as 0
 //					blank_back = 0;
 					error_back = 0;
 					for ( int page = 1; page <= pages; page++ )
@@ -854,30 +822,6 @@ System.gc();
 						System.out.println ( "经度：" + lon + "度。" );
 						String json_data = ProcessData.connUrl ( URL );
 						sim_whole++;
-					
-						// 情况一：取空：有时候再取几次就能取到数据
-						// 添加抓空后抓取成功次数统计
-						// 实验后发现3W次抓空后仅有32次能够再次抓取到数据，所以在这里取消第二次抓取
-						/*if ( json_data.equals ( "[]" ) )
-						{
-							if(2 > blank_back)//重复取空3次，就舍弃，认为是不存在数据（基本是不存在数据，实际未证实）
-							{
-								blank_back++;
-								sim_blank++;
-								page--;
-								
-								System.out.println ( "-----------取空->重取-------------\r\n\r\n" );
-								continue;
-							}
-							else
-							{
-								blank_back = 0;
-								sim_blank++;
-								
-								System.out.println ( "-----------取空->舍弃-------------\r\n\r\n" );
-								break;
-							}
-						}*/
 						//目前取消第二次抓取
 						//空抓后有数据/空抓总数：71.0/63786。
 						//优化后可达0/9k
@@ -941,9 +885,9 @@ System.gc();
 								break;
 							
 							// 插入到数据库中数据
-							for ( int j = 0; j < array.length ( ); j++ )
+							for ( int j1 = 0; j1 < array.length ( ); j1++ )
 							{
-								String geo = array.getJSONObject ( j ).getString ( "geo" );
+								String geo = array.getJSONObject ( j1 ).getString ( "geo" );
 								if ( geo.equals ( "null" ) )
 								{
 									continue;
@@ -953,13 +897,13 @@ System.gc();
 								{
 									continue;
 								}
-								String final_data = array.getJSONObject ( j ).toString ( );
+								String final_data = array.getJSONObject ( j1 ).toString ( );
 								if(final_data.contains("com.weico.topicinfo")) 
 								{
 									continue;
 								}
 								
-								double location[] = ProcessData.getGeo ( array.getJSONObject ( j ) );
+								double location[] = ProcessData.getGeo ( array.getJSONObject ( j1 ) );
 								//web墨卡托作为DB名称，时间作为Collection名称
 								OperMongo.saveData ( final_data, ProcessData.wkt_code (location [ 1 ], location [ 0 ], 5 ), ProcessData.wkt_code (location [ 1 ], location [ 0 ], 9 )+"_"+collection_name );
 							}
@@ -973,11 +917,17 @@ System.gc();
 							// 获取总数据
 							
 						}
-					}
-				data.add(temp);
+				
 				}
+					data.add(temp);
+					if(j % (coor.size()/10) == 0) //每执行10%发送一次邮件
+					{
+					for(int mailnum = 0 ;mailnum< emailad.length;mailnum++)
+					{
+					email_send.EmailSendByAddress(emailad[mailnum], df, sdf, grab_statistic, c, email_send);
+					}
+					}
 			}
-		}
 		Statistics.statisticsWrite ( sim_whole, sim_error, sim_blank, 0, 0, 0 );
 		System.gc ( );
 		return data;

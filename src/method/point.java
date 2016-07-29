@@ -23,7 +23,7 @@ public class point {
 				 * @param lastgrab
 				 * @param num
 				 */
-				public point(String city , String province)
+				public point(String province,String city )
 				{
 					this.city = city;
 					this.province = province;

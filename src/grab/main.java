@@ -4,12 +4,14 @@ package grab;
 
 import java.io.IOException;
 import method.getCityName;
+import method.grabPosition;
 import method.point;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
@@ -96,7 +98,7 @@ public class main
 		meticulouslocation.add ( new AreaData ( 23.0,23.21,113.21,113.46 ) );	//广州
 		meticulouslocation.add ( new AreaData ( 22.86,22.55,113.64,114.59) );	//深圳
 		meticulouslocation.add ( new AreaData ( 30.06,30.42,119.85,120.43 ) );	//杭州
-		KDTree<point> kdtree = new KDTree<point>(2); //定义一个2D树
+		KDTree<point> kdtree ; //定义一个2D树
 		
 			
 			
@@ -121,46 +123,8 @@ public class main
 			int grab_blank = 0 ;
 			//初始化地理索引
 			System.out.println("正在初始化地理索引");
-			for ( int j = 0; j < location.size ( ); j++ )
-			{
-				AreaData lat_lon = location.get ( j );
-				lat_min = lat_lon.getLat_min ( );
-				lon_min = lat_lon.getLon_min ( );
-				lat_max = lat_lon.getLat_max ( );
-				lon_max = lat_lon.getLon_max ( );
-				double	latlon					= 0.1;//11132M＝0.1度
-				
-				for ( int i = 0; i < 2; i++ )
-				{
-					if ( i == 1 )
-					{
-						lat_min 	= lat_min 	+ latlon;
-						lon_min 	= lon_min 	+ latlon;
-						lat_max 	= lat_max	- latlon;
-						lon_max 	= lon_max 	- latlon;
-					}
-					for ( double lat = lat_min; lat < lat_max - latlon; lat = lat + 2*latlon )
-					{
-						for ( double lon = lon_min; lon < lon_max - latlon; lon = lon + 2*latlon )
-						{
-							System.out.println(lon+" " +lat);
-							double[] coordinary = new double[2];
-							coordinary[0] = lat ; 
-							coordinary[1] = lon ;
-							String[] city = getCityName.pcn_getProCityNameURL(coordinary , 0);
-							point tempp = new point(city[0],city[1]);//0省1城
-							try {
-								kdtree.insert(coordinary, tempp);
-							} catch (KeySizeException | KeyDuplicateException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-					}
-					
-					
-				}
-			}
+			ArrayList<double[]> coor = grabPosition.returnposition();
+			kdtree = grabPosition.makeTree(coor);
 			//初始化地理索引完成
 			System.out.println("初始化地理索引完成");
 			//创建邮件发送对象。
@@ -208,14 +172,7 @@ public class main
 				LinkedList<Point> swap = new LinkedList<Point>();
 				if(Integer.parseInt(continued_days) == 0)//首次执行初始化矩阵
 				{
-				for ( int j = 0; j < location.size ( ); j++ )
-				{
 					OperMongo.connectDB ( );
-					AreaData lat_lon = location.get ( j );
-					lat_min = lat_lon.getLat_min ( );
-					lon_min = lat_lon.getLon_min ( );
-					lat_max = lat_lon.getLat_max ( );
-					lon_max = lat_lon.getLon_max ( );
 					///////////////////////////////////////////////////////////////////////////////////////////////////
 					//发送一封邮件告知开始抓取新地区
 					JSONObject statistic_json =  Statistics.statisticsRead ( );
@@ -226,39 +183,18 @@ public class main
 					SimpleDateFormat df = new SimpleDateFormat (
 							"yyyy-MM-dd HH:mm:ss" );// 设置日期格式
 					String email_addresses[] = readConfig.read_email_address_config ( );//发送前读取可以在程序运转过程中添加服务邮箱。
-					
-					
-					 
-					//要求降低信息发送频率，定制一额发送
-					//有的时候库里只有14个
-					if(0==j || 5==j|| 9==j || 15==j )
-					{
-						for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
-						{
-						email_send.EmailSendByAddress(email_addresses[mailnum], df, sdf, grab_statistic, c, email_send);
-						}
-						}
-					///////////////////////////////////////////////////////////////////////////////////////////////////
-					
 //					GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
-					swap.addAll(GetData.getSinaData_init_list( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time));
+					swap.addAll(GetData.getSinaData_init_list(email_addresses, df, sdf, grab_statistic, c, email_send, collection_name, coor, unix_start_time, unix_end_time));
 					readConfig.writePointType(swap);
 					OperMongo.closeDB ( );
 					grab_blank = grab_statistic.getInt ( "grab_blank_num" );
-				}
+				
 			}
-				else if(Integer.parseInt(continued_days) <= 7)//七天训练
+				else if(Integer.parseInt(continued_days) <= 7 &&Integer.parseInt(continued_days)>0 )//七天训练
 				{
 					swap = readConfig.readPointType();
 					LinkedList<Point> store = new LinkedList<Point>();
-					for ( int j = 0; j < location.size ( ); j++ )
-					{
 						OperMongo.connectDB ( );
-						AreaData lat_lon = location.get ( j );
-						lat_min = lat_lon.getLat_min ( );
-						lon_min = lat_lon.getLon_min ( );
-						lat_max = lat_lon.getLat_max ( );
-						lon_max = lat_lon.getLon_max ( );
 						///////////////////////////////////////////////////////////////////////////////////////////////////
 						//发送一封邮件告知开始抓取新地区
 						JSONObject statistic_json =  Statistics.statisticsRead ( );
@@ -274,20 +210,15 @@ public class main
 						 
 						//要求降低信息发送频率，定制一额发送
 						//有的时候库里只有14个
-						if(0==j || 5==j|| 9==j || 15==j )
-						{
-							for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
-							{
-							email_send.EmailSendByAddress(email_addresses[mailnum], df, sdf, grab_statistic, c, email_send);
-							}
-							}
+					
+							
 						///////////////////////////////////////////////////////////////////////////////////////////////////
 						
 //						GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
-						store.addAll(GetData.getSinaData_train_list(swap, collection_name, lat_min, lon_min, lat_max, lon_max, unix_start_time, unix_end_time));
+						store.addAll(GetData.getSinaData_train_list(email_addresses, df, sdf, grab_statistic, c, email_send,swap, collection_name, unix_start_time, unix_end_time));
 						OperMongo.closeDB ( );
 						grab_blank = grab_statistic.getInt ( "grab_blank_num" );
-					}
+					
 					readConfig.writePointType(store);
 				}
 				else if(Integer.parseInt(continued_days) > 7&&Integer.parseInt(continued_days)<=30)//30天使用
@@ -312,22 +243,9 @@ public class main
 						SimpleDateFormat df = new SimpleDateFormat (
 								"yyyy-MM-dd HH:mm:ss" );// 设置日期格式
 						String email_addresses[] = readConfig.read_email_address_config ( );//发送前读取可以在程序运转过程中添加服务邮箱。
-						
-						
-						 
-						//要求降低信息发送频率，定制一额发送
-						//有的时候库里只有14个
-						if(0==j || 5==j|| 9==j || 15==j )
-						{
-							for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
-							{
-							email_send.EmailSendByAddress(email_addresses[mailnum], df, sdf, grab_statistic, c, email_send);
-							}
-							}
-						///////////////////////////////////////////////////////////////////////////////////////////////////
-						
+
 //						GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
-						GetData.getSinaData_use_list(swap, collection_name,  unix_start_time, unix_end_time);
+						GetData.getSinaData_use_list(email_addresses, df, sdf, grab_statistic, c, email_send,swap, collection_name,  unix_start_time, unix_end_time);
 						
 						OperMongo.closeDB ( );
 						grab_blank = grab_statistic.getInt ( "grab_blank_num" );
@@ -366,6 +284,7 @@ public class main
 				//数据导出
 				OperMongo.connectDB ( ) ;
 				start = System.currentTimeMillis ( );
+				//修改为使用KD树的KNN算法进行导出
 				OperMongo.export_date_pro_city_json ( Adress.exportJsonPath,kdtree ) ;				
 				end = System.currentTimeMillis ( );
 				long end_all = System.currentTimeMillis ( );
