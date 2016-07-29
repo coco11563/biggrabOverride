@@ -110,6 +110,7 @@ public class grabPosition {
 		try {
 			String[] city = getCityName.pcn_getProCityNameURL(coor.get(i));
 			point tempp = new point(city[0],city[1]);//0省1城
+			System.out.println(city[0]+ " " +city[1]);
 			ret.insert(coor.get(i), tempp);
 		} catch (KeySizeException | KeyDuplicateException e) {
 			// TODO Auto-generated catch block

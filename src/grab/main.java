@@ -56,61 +56,19 @@ public class main
 		long start_all = System.currentTimeMillis ( );
 		try
 		{
-			
-			LinkedList < AreaData > location = new LinkedList < AreaData > ( );
-			LinkedList < AreaData > meticulouslocation = new LinkedList < AreaData > ( );//精细抓取区域，计划包涵北上广深武汉杭州
-			location.add ( new AreaData ( 39, 41, 111, 118.5 ) );// 京津唐冀地区
-			location.add ( new AreaData ( 27.5, 32, 120.5, 122 ) );// 沪杭
-			location.add ( new AreaData ( 22, 24.25, 107, 114.5 ) );// 两广
-			location.add ( new AreaData ( 24.25, 37, 117.75, 119 ) );
-			location.add ( new AreaData ( 27.25, 37, 119, 120.5 ) );
-			location.add ( new AreaData ( 24.25, 31, 107, 117.75 ) );// 大地区
-			location.add ( new AreaData ( 31, 39, 107, 117.75 ) );// 大地区
-			location.add ( new AreaData ( 43, 48, 120, 131 ) );// 东三省
-			location.add ( new AreaData ( 41, 43, 114, 126 ) );// 东三省
-			location.add ( new AreaData ( 40, 41, 122.25, 124.5 ) );// 东三省
-			location.add ( new AreaData ( 38.75, 39, 121.25, 122.25 ) );// 东三省
-			location.add ( new AreaData ( 27, 32.5, 103, 107 ) );// 川黔渝
-			location.add ( new AreaData ( 23.5, 27, 99, 107 ) );// 滇
-			
-			//20151113 licong
-			location.add ( new AreaData ( 43.65, 44.5, 87.2, 87.8 ) );//乌鲁木齐
-			location.add ( new AreaData ( 32.5, 42.5, 98, 107 ) );//青海
-			location.add ( new AreaData ( 40.3, 40.7, 79.7, 82 ) );//阿克苏
-			location.add ( new AreaData ( 40.7, 41.4, 79.9, 80.7 ) );//
-			location.add ( new AreaData ( 41.2, 41.8, 85.7, 86.3 ) );//巴音郭楞
-			location.add ( new AreaData ( 41.8, 42.3, 86.1, 87.3 ) );//
-			location.add ( new AreaData ( 44.8, 45, 82, 82.55 ) );//阿勒泰
-			location.add ( new AreaData ( 47.75, 47.95, 88.1, 88.2 ) );//
-			location.add ( new AreaData ( 37, 37.5, 79.4, 80.4 ) );//和田
-			location.add ( new AreaData ( 29.6, 29.75, 90.9, 91.45 ) );//拉萨
-			
-			//20151118 licong
-			location.add ( new AreaData ( 18.1, 20.15, 108.5, 111 ) );// 海南
-			location.add ( new AreaData ( 22.5, 24.25, 120, 120.5 ) );// 台湾
-			location.add ( new AreaData ( 22, 24.75, 120.5, 121 ) );// 台湾
-			location.add ( new AreaData ( 22.75, 25.25, 121, 121.5 ) );// 台湾
-			location.add ( new AreaData ( 24.25, 25.25, 121.5, 122 ) );// 台湾
-			
-		meticulouslocation.add ( new AreaData ( 30.2, 30.9, 113.9, 114.7 ) );	//武汉
-		meticulouslocation.add ( new AreaData ( 39.46,40.22,115.83,116.91 ) ); 	//北京
-		meticulouslocation.add ( new AreaData ( 30.69,31.66,120.98,121.95 ) );	//上海
-		meticulouslocation.add ( new AreaData ( 23.0,23.21,113.21,113.46 ) );	//广州
-		meticulouslocation.add ( new AreaData ( 22.86,22.55,113.64,114.59) );	//深圳
-		meticulouslocation.add ( new AreaData ( 30.06,30.42,119.85,120.43 ) );	//杭州
+//			
+//		meticulouslocation.add ( new AreaData ( 30.2, 30.9, 113.9, 114.7 ) );	//武汉
+//		meticulouslocation.add ( new AreaData ( 39.46,40.22,115.83,116.91 ) ); 	//北京
+//		meticulouslocation.add ( new AreaData ( 30.69,31.66,120.98,121.95 ) );	//上海
+//		meticulouslocation.add ( new AreaData ( 23.0,23.21,113.21,113.46 ) );	//广州
+//		meticulouslocation.add ( new AreaData ( 22.86,22.55,113.64,114.59) );	//深圳
+//		meticulouslocation.add ( new AreaData ( 30.06,30.42,119.85,120.43 ) );	//杭州
 		KDTree<point> kdtree ; //定义一个2D树
-		
-			
-			
-			double lat_min;
-			double lon_min;
-			double lat_max;
-			double lon_max;
 			//精细化抓取区域
-			double mlat_min;
-			double mlon_min;
-			double mlat_max;
-			double mlon_max;
+//			double mlat_min;
+//			double mlon_min;
+//			double mlat_max;
+//			double mlon_max;
 			long unix_start_time;
 			long unix_end_time;
 		
@@ -224,15 +182,7 @@ public class main
 				else if(Integer.parseInt(continued_days) > 7&&Integer.parseInt(continued_days)<=30)//30天使用
 				{
 					swap = readConfig.readPointType();
-					
-					for ( int j = 0; j < location.size ( ); j++ )
-					{
 						OperMongo.connectDB ( );
-						AreaData lat_lon = location.get ( j );
-						lat_min = lat_lon.getLat_min ( );
-						lon_min = lat_lon.getLon_min ( );
-						lat_max = lat_lon.getLat_max ( );
-						lon_max = lat_lon.getLon_max ( );
 						///////////////////////////////////////////////////////////////////////////////////////////////////
 						//发送一封邮件告知开始抓取新地区
 						JSONObject statistic_json =  Statistics.statisticsRead ( );
@@ -249,7 +199,7 @@ public class main
 						
 						OperMongo.closeDB ( );
 						grab_blank = grab_statistic.getInt ( "grab_blank_num" );
-					}
+					
 				}
 				//coco1 add at 2016年6月1日20:26:22
 				//针对某几个区域进行精细抓取，抓取半径设置为5000
