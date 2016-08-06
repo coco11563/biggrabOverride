@@ -118,16 +118,13 @@ public class readConfig {
 			JSONArray tmparray = new JSONArray();
 			JSONObject tmp = new JSONObject();
 			for (int num = 0; num < data.size(); num++) {
-				Point p = data.get(num);
-					
-				
+					Point p = data.get(num);
 					tmp.put("num", p.getNum());
 					tmp.put("lng", p.getLng());
 					tmp.put("lat", p.getLat());
 					tmp.put("type", p.getPointType());
 					tmp.put("last", p.getLastgrab());
 					tmparray.put(tmp);
-				
 			}
 			writeFile(point_path, tmparray.toString());
 		}

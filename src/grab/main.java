@@ -128,8 +128,8 @@ public class main
 				/******************************JiaJun Lee,2015.01.07*******************************/
 				/**********************************************************************************/
 				LinkedList<Point> swap = new LinkedList<Point>();
-				if(Integer.parseInt(continued_days) == 0)//首次执行初始化矩阵
-				{
+//				if(Integer.parseInt(continued_days) == 0)//首次执行初始化矩阵
+//				{
 					OperMongo.connectDB ( );
 					///////////////////////////////////////////////////////////////////////////////////////////////////
 					//发送一封邮件告知开始抓取新地区
@@ -147,60 +147,60 @@ public class main
 					OperMongo.closeDB ( );
 					grab_blank = grab_statistic.getInt ( "grab_blank_num" );
 				
-			}
-				else if(Integer.parseInt(continued_days) <= 7 &&Integer.parseInt(continued_days)>0 )//七天训练
-				{
-					swap = readConfig.readPointType();
-					LinkedList<Point> store = new LinkedList<Point>();
-						OperMongo.connectDB ( );
-						///////////////////////////////////////////////////////////////////////////////////////////////////
-						//发送一封邮件告知开始抓取新地区
-						JSONObject statistic_json =  Statistics.statisticsRead ( );
-						JSONObject grab_statistic = statistic_json
-								.getJSONObject ( "grab_statistic" );
-						JSONObject db_statistic = statistic_json
-								.getJSONObject ( "db_statistic" );
-						SimpleDateFormat df = new SimpleDateFormat (
-								"yyyy-MM-dd HH:mm:ss" );// 设置日期格式
-						String email_addresses[] = readConfig.read_email_address_config ( );//发送前读取可以在程序运转过程中添加服务邮箱。
-						
-						
-						 
-						//要求降低信息发送频率，定制一额发送
-						//有的时候库里只有14个
-					
-							
-						///////////////////////////////////////////////////////////////////////////////////////////////////
-						
-//						GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
-						store.addAll(GetData.getSinaData_train_list(email_addresses, df, sdf, grab_statistic, c, email_send,swap, collection_name, unix_start_time, unix_end_time));
-						OperMongo.closeDB ( );
-						grab_blank = grab_statistic.getInt ( "grab_blank_num" );
-					
-					readConfig.writePointType(store);
-				}
-				else if(Integer.parseInt(continued_days) > 7&&Integer.parseInt(continued_days)<=30)//30天使用
-				{
-					swap = readConfig.readPointType();
-						OperMongo.connectDB ( );
-						///////////////////////////////////////////////////////////////////////////////////////////////////
-						//发送一封邮件告知开始抓取新地区
-						JSONObject statistic_json =  Statistics.statisticsRead ( );
-						JSONObject grab_statistic = statistic_json
-								.getJSONObject ( "grab_statistic" );
-						JSONObject db_statistic = statistic_json
-								.getJSONObject ( "db_statistic" );
-						SimpleDateFormat df = new SimpleDateFormat (
-								"yyyy-MM-dd HH:mm:ss" );// 设置日期格式
-						String email_addresses[] = readConfig.read_email_address_config ( );//发送前读取可以在程序运转过程中添加服务邮箱。
-
-//						GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
-						GetData.getSinaData_use_list(email_addresses, df, sdf, grab_statistic, c, email_send,swap, collection_name,  unix_start_time, unix_end_time);
-						
-						OperMongo.closeDB ( );
-						grab_blank = grab_statistic.getInt ( "grab_blank_num" );
-					
-				}
+//			}
+//				else if(Integer.parseInt(continued_days) <= 7 &&Integer.parseInt(continued_days)>0 )//七天训练
+//				{
+//					swap = readConfig.readPointType();
+//					LinkedList<Point> store = new LinkedList<Point>();
+//						OperMongo.connectDB ( );
+//						///////////////////////////////////////////////////////////////////////////////////////////////////
+//						//发送一封邮件告知开始抓取新地区
+//						JSONObject statistic_json =  Statistics.statisticsRead ( );
+//						JSONObject grab_statistic = statistic_json
+//								.getJSONObject ( "grab_statistic" );
+//						JSONObject db_statistic = statistic_json
+//								.getJSONObject ( "db_statistic" );
+//						SimpleDateFormat df = new SimpleDateFormat (
+//								"yyyy-MM-dd HH:mm:ss" );// 设置日期格式
+//						String email_addresses[] = readConfig.read_email_address_config ( );//发送前读取可以在程序运转过程中添加服务邮箱。
+//						
+//						
+//						 
+//						//要求降低信息发送频率，定制一额发送
+//						//有的时候库里只有14个
+//					
+//							
+//						///////////////////////////////////////////////////////////////////////////////////////////////////
+//						
+////						GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
+//						store.addAll(GetData.getSinaData_train_list(email_addresses, df, sdf, grab_statistic, c, email_send,swap, collection_name, unix_start_time, unix_end_time));
+//						OperMongo.closeDB ( );
+//						grab_blank = grab_statistic.getInt ( "grab_blank_num" );
+//					
+//					readConfig.writePointType(store);
+//				}
+//				else if(Integer.parseInt(continued_days) > 7&&Integer.parseInt(continued_days)<=30)//30天使用
+//				{
+//					swap = readConfig.readPointType();
+//						OperMongo.connectDB ( );
+//						///////////////////////////////////////////////////////////////////////////////////////////////////
+//						//发送一封邮件告知开始抓取新地区
+//						JSONObject statistic_json =  Statistics.statisticsRead ( );
+//						JSONObject grab_statistic = statistic_json
+//								.getJSONObject ( "grab_statistic" );
+//						JSONObject db_statistic = statistic_json
+//								.getJSONObject ( "db_statistic" );
+//						SimpleDateFormat df = new SimpleDateFormat (
+//								"yyyy-MM-dd HH:mm:ss" );// 设置日期格式
+//						String email_addresses[] = readConfig.read_email_address_config ( );//发送前读取可以在程序运转过程中添加服务邮箱。
+//
+////						GetData.getSinaData_wkt_wkt_time_lite ( collection_name, lat_min, lon_min, lat_max,lon_max, unix_start_time, unix_end_time);
+//						GetData.getSinaData_use_list(email_addresses, df, sdf, grab_statistic, c, email_send,swap, collection_name,  unix_start_time, unix_end_time);
+//						
+//						OperMongo.closeDB ( );
+//						grab_blank = grab_statistic.getInt ( "grab_blank_num" );
+//					
+//				}
 				//coco1 add at 2016年6月1日20:26:22
 				//针对某几个区域进行精细抓取，抓取半径设置为5000
 //				for ( int j1 = 0; j1 < meticulouslocation.size ( ); j1++ )
@@ -226,7 +226,7 @@ public class main
 				long end = System.currentTimeMillis ( );
 				 
 				OperMongo.closeDB ( ) ;
-				String email_addresses[] = readConfig.read_email_address_config ( );
+//				String email_addresses[] = readConfig.read_email_address_config ( );
 				for(int mailnum = 0 ;mailnum< email_addresses.length;mailnum++)
 				{
 					email_send.EmailSendByAddress(end-start, email_addresses[mailnum], email_send);

@@ -108,6 +108,7 @@ public class grabPosition {
 		for(int i = 0 ; i < coor.size() ; i ++)
 		{
 		try {
+			
 			String[] city = getCityName.pcn_getProCityNameURL(coor.get(i));
 			point tempp = new point(city[0],city[1]);//0省1城
 			System.out.println(city[0]+ " " +city[1]);
